@@ -14,16 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      food_listings: {
+        Row: {
+          created_at: string
+          description: string | null
+          donor_id: string
+          expires_at: string
+          food_name: string
+          id: string
+          pickup_address: string
+          quantity: number
+          status: Database["public"]["Enums"]["listing_status"]
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          donor_id: string
+          expires_at: string
+          food_name: string
+          id?: string
+          pickup_address: string
+          quantity: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          donor_id?: string
+          expires_at?: string
+          food_name?: string
+          id?: string
+          pickup_address?: string
+          quantity?: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      food_requests: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          message: string | null
+          people_count: number
+          receiver_id: string
+          status: Database["public"]["Enums"]["request_status"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["urgency_level"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          people_count?: number
+          receiver_id: string
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["urgency_level"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          people_count?: number
+          receiver_id?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["urgency_level"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "food_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "donor" | "receiver"
+      listing_status: "available" | "reserved" | "completed" | "expired"
+      request_status: "pending" | "approved" | "rejected" | "fulfilled"
+      urgency_level: "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +295,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "donor", "receiver"],
+      listing_status: ["available", "reserved", "completed", "expired"],
+      request_status: ["pending", "approved", "rejected", "fulfilled"],
+      urgency_level: ["low", "medium", "high"],
+    },
   },
 } as const
