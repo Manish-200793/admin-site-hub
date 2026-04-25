@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Heart, HandHelping, MapPin, Clock, Loader2, Plus } from "lucide-react";
+import { Heart, HandHelping, MapPin, Clock, Loader2, Plus, Check, X, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { ChatBox } from "@/components/ChatBox";
 
 interface Listing {
   id: string;
