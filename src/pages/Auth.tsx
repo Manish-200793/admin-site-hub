@@ -101,6 +101,48 @@ const Auth = () => {
     navigate("/dashboard");
   };
 
+  const sendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = otpEmail.trim();
+    if (!z.string().email().safeParse(email).success) {
+      toast.error("Enter a valid email");
+      return;
+    }
+    setOtpSending(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` },
+    });
+    setOtpSending(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Code sent — check your inbox");
+    setOtpStep("code");
+  };
+
+  const verifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode.length !== 6) {
+      toast.error("Enter the 6-digit code");
+      return;
+    }
+    setOtpVerifying(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: otpEmail.trim(),
+      token: otpCode,
+      type: "email",
+    });
+    setOtpVerifying(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Signed in!");
+    navigate("/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-cream flex items-center justify-center p-4">
       <div className="w-full max-w-md">
