@@ -160,19 +160,42 @@ const AdminDashboard = () => {
                       <th className="text-left p-4">Urgency</th>
                       <th className="text-left p-4">Status</th>
                       <th className="text-left p-4">When</th>
+                      <th className="text-left p-4">Chat</th>
                     </tr>
                   </thead>
                   <tbody>
                     {requests.map((r) => (
-                      <tr key={r.id} className="border-t border-border/60">
-                        <td className="p-4 font-medium">{r.food_listings?.food_name ?? "—"}</td>
-                        <td className="p-4">{r.people_count}</td>
-                        <td className="p-4"><Badge variant="outline">{r.urgency}</Badge></td>
-                        <td className="p-4"><Badge variant="secondary">{r.status}</Badge></td>
-                        <td className="p-4 text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
-                      </tr>
+                      <>
+                        <tr key={r.id} className="border-t border-border/60">
+                          <td className="p-4 font-medium">{r.food_listings?.food_name ?? "—"}</td>
+                          <td className="p-4">{r.people_count}</td>
+                          <td className="p-4"><Badge variant="outline">{r.urgency}</Badge></td>
+                          <td className="p-4"><Badge variant="secondary">{r.status}</Badge></td>
+                          <td className="p-4 text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
+                          <td className="p-4">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setOpenChatId(openChatId === r.id ? null : r.id)}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-1" />
+                              {openChatId === r.id ? "Hide" : "View"}
+                            </Button>
+                          </td>
+                        </tr>
+                        {openChatId === r.id && (
+                          <tr className="border-t border-border/60 bg-secondary/20">
+                            <td colSpan={6} className="p-4">
+                              <ChatBox
+                                requestId={r.id}
+                                title={`Conversation · ${r.food_listings?.food_name ?? ""}`}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     ))}
-                    {requests.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No requests yet.</td></tr>}
+                    {requests.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No requests yet.</td></tr>}
                   </tbody>
                 </table>
               </div>
