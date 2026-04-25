@@ -202,6 +202,60 @@ const Dashboard = () => {
                     ))}
                   </div>
                 )}
+
+                <h2 className="font-display text-2xl font-semibold mb-4 mt-8">Incoming requests</h2>
+                {incomingRequests.length === 0 ? (
+                  <div className="text-muted-foreground bg-card rounded-2xl border border-border/60 p-8 text-center">
+                    No requests on your listings yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {incomingRequests.map((r) => (
+                      <div key={r.id} className="bg-card rounded-xl border border-border/60 p-4 shadow-card">
+                        <div className="flex justify-between items-start gap-3">
+                          <div>
+                            <div className="font-semibold">{r.food_listings?.food_name}</div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              <span className="font-medium text-foreground">{r.receiver?.full_name || "Someone"}</span>
+                              {r.receiver?.phone && <span> · {r.receiver.phone}</span>}
+                              <span> requested {r.people_count} serving(s) · urgency {r.urgency}</span>
+                            </div>
+                            {r.message && <div className="text-sm mt-2 italic">"{r.message}"</div>}
+                          </div>
+                          <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>
+                            {r.status}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-2 mt-3 flex-wrap">
+                          {r.status === "pending" && (
+                            <>
+                              <Button size="sm" onClick={() => updateRequestStatus(r.id, "approved")} className="bg-gradient-warm shadow-warm">
+                                <Check className="h-4 w-4 mr-1" /> Approve
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => updateRequestStatus(r.id, "rejected")}>
+                                <X className="h-4 w-4 mr-1" /> Reject
+                              </Button>
+                            </>
+                          )}
+                          {r.status === "approved" && (
+                            <Button size="sm" variant="outline" onClick={() => setOpenChatId(openChatId === r.id ? null : r.id)}>
+                              <MessageCircle className="h-4 w-4 mr-1" /> {openChatId === r.id ? "Hide chat" : "Chat with receiver"}
+                            </Button>
+                          )}
+                        </div>
+                        {openChatId === r.id && r.status === "approved" && (
+                          <div className="mt-3">
+                            <ChatBox
+                              requestId={r.id}
+                              title={`Chat with ${r.receiver?.full_name || "receiver"}`}
+                              participants={{ [r.receiver_id]: r.receiver?.full_name || "Receiver" }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
 
@@ -225,8 +279,29 @@ const Dashboard = () => {
                               <MapPin className="h-3 w-3" /> {r.food_listings?.pickup_address}
                             </div>
                           </div>
-                          <Badge variant={r.status === "approved" ? "default" : "secondary"}>{r.status}</Badge>
+                          <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>
+                            {r.status}
+                          </Badge>
                         </div>
+                        {r.status === "approved" && (
+                          <div className="mt-3">
+                            <Button size="sm" variant="outline" onClick={() => setOpenChatId(openChatId === r.id ? null : r.id)}>
+                              <MessageCircle className="h-4 w-4 mr-1" /> {openChatId === r.id ? "Hide chat" : "Chat with donor"}
+                            </Button>
+                            {openChatId === r.id && (
+                              <div className="mt-3">
+                                <ChatBox
+                                  requestId={r.id}
+                                  title="Chat with donor"
+                                  participants={r.food_listings?.donor_id ? { [r.food_listings.donor_id]: "Donor" } : {}}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {r.status === "pending" && (
+                          <p className="text-xs text-muted-foreground mt-2">Waiting for the donor to approve. Chat opens once approved.</p>
+                        )}
                       </div>
                     ))}
                   </div>
