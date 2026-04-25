@@ -33,6 +33,13 @@ const Auth = () => {
   );
   const [loading, setLoading] = useState(false);
 
+  // OTP / email-code login
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otpStep, setOtpStep] = useState<"email" | "code">("email");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
