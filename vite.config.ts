@@ -26,5 +26,4 @@ export default defineConfig(({ mode }) => ({
       "@tanstack/query-core",
     ],
   },
-  base: "/admin-site-hub/", // 👈 Add this line for GitHub Pages
 }));
