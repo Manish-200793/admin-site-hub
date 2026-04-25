@@ -165,8 +165,8 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody>
                     {requests.map((r) => (
-                      <>
-                        <tr key={r.id} className="border-t border-border/60">
+                      <Fragment key={r.id}>
+                        <tr className="border-t border-border/60">
                           <td className="p-4 font-medium">{r.food_listings?.food_name ?? "—"}</td>
                           <td className="p-4">{r.people_count}</td>
                           <td className="p-4"><Badge variant="outline">{r.urgency}</Badge></td>
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </Fragment>
                     ))}
                     {requests.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No requests yet.</td></tr>}
                   </tbody>
