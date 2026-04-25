@@ -30,6 +30,8 @@ const Dashboard = () => {
   const { user, isDonor, isReceiver, roles } = useAuth();
   const [myListings, setMyListings] = useState<Listing[]>([]);
   const [myRequests, setMyRequests] = useState<any[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,17 +39,38 @@ const Dashboard = () => {
     if (!user) return;
     setLoading(true);
     if (isDonor) {
-      const { data } = await supabase
+      const { data: listingsData } = await supabase
         .from("food_listings")
         .select("*")
         .eq("donor_id", user.id)
         .order("created_at", { ascending: false });
-      setMyListings((data ?? []) as Listing[]);
+      setMyListings((listingsData ?? []) as Listing[]);
+
+      const listingIds = (listingsData ?? []).map((l) => l.id);
+      if (listingIds.length > 0) {
+        const { data: reqData } = await supabase
+          .from("food_requests")
+          .select("*, food_listings(food_name, pickup_address)")
+          .in("listing_id", listingIds)
+          .order("created_at", { ascending: false });
+        // attach receiver name
+        const receiverIds = Array.from(new Set((reqData ?? []).map((r) => r.receiver_id)));
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, phone")
+          .in("user_id", receiverIds.length ? receiverIds : ["00000000-0000-0000-0000-000000000000"]);
+        const byId = new Map((profs ?? []).map((p) => [p.user_id, p]));
+        setIncomingRequests(
+          (reqData ?? []).map((r) => ({ ...r, receiver: byId.get(r.receiver_id) })),
+        );
+      } else {
+        setIncomingRequests([]);
+      }
     }
     if (isReceiver) {
       const { data } = await supabase
         .from("food_requests")
-        .select("*, food_listings(food_name, pickup_address)")
+        .select("*, food_listings(food_name, pickup_address, donor_id)")
         .eq("receiver_id", user.id)
         .order("created_at", { ascending: false });
       setMyRequests(data ?? []);
@@ -58,6 +81,15 @@ const Dashboard = () => {
   useEffect(() => {
     load();
   }, [user, isDonor, isReceiver]);
+
+  const updateRequestStatus = async (id: string, status: "approved" | "rejected") => {
+    const { error } = await supabase.from("food_requests").update({ status }).eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(status === "approved" ? "Request approved — chat is now open" : "Request rejected");
+      load();
+    }
+  };
 
   const handleAddListing = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
