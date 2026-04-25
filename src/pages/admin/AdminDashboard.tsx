@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, Users, Package, Inbox, LogOut, Loader2, Sprout, Trash2 } from "lucide-react";
+import { Shield, Users, Package, Inbox, LogOut, Loader2, Sprout, Trash2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { ChatBox } from "@/components/ChatBox";
 
 const AdminDashboard = () => {
   const { signOut, user } = useAuth();
