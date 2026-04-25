@@ -29,7 +29,7 @@ const AdminDashboard = () => {
     const [profilesRes, listingsRes, requestsRes, rolesRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("food_listings").select("*").order("created_at", { ascending: false }),
-      supabase.from("food_requests").select("*, food_listings(food_name)").order("created_at", { ascending: false }),
+      supabase.from("food_requests").select("*, food_listings(food_name, donor_id)").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
     ]);
 
@@ -189,6 +189,10 @@ const AdminDashboard = () => {
                               <ChatBox
                                 requestId={r.id}
                                 title={`Conversation · ${r.food_listings?.food_name ?? ""}`}
+                                participants={{
+                                  ...(r.food_listings?.donor_id ? { [r.food_listings.donor_id]: "Donor" } : {}),
+                                  [r.receiver_id]: "Receiver",
+                                }}
                               />
                             </td>
                           </tr>
