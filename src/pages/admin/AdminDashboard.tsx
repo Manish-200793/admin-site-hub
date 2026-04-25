@@ -16,6 +16,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
