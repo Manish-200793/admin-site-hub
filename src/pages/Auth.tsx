@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
-import { Sprout, Loader2, Heart, HandHelping, Mail, KeyRound } from "lucide-react";
+import { Sprout, Loader2, Heart, HandHelping } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,13 +31,6 @@ const Auth = () => {
     (params.get("role") as "donor" | "receiver") || "receiver"
   );
   const [loading, setLoading] = useState(false);
-
-  // OTP / email-code login
-  const [otpEmail, setOtpEmail] = useState("");
-  const [otpStep, setOtpStep] = useState<"email" | "code">("email");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
 
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
@@ -98,48 +90,6 @@ const Auth = () => {
       return;
     }
     toast.success("Welcome back!");
-    navigate("/dashboard");
-  };
-
-  const sendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const email = otpEmail.trim();
-    if (!z.string().email().safeParse(email).success) {
-      toast.error("Enter a valid email");
-      return;
-    }
-    setOtpSending(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` },
-    });
-    setOtpSending(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Code sent — check your inbox");
-    setOtpStep("code");
-  };
-
-  const verifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otpCode.length !== 6) {
-      toast.error("Enter the 6-digit code");
-      return;
-    }
-    setOtpVerifying(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: otpEmail.trim(),
-      token: otpCode,
-      type: "email",
-    });
-    setOtpVerifying(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Signed in!");
     navigate("/dashboard");
   };
 
