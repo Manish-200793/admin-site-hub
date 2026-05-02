@@ -94,8 +94,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-cream flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-cream flex items-center justify-center p-4 relative overflow-hidden">
+      <div aria-hidden className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl animate-blob" />
+      <div aria-hidden className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-primary/15 blur-3xl animate-blob" style={{ animationDelay: "4s" }} />
+      <div aria-hidden className="absolute inset-0 bg-grain opacity-40 pointer-events-none" />
+      <div className="w-full max-w-md relative z-10 animate-fade-up">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-earth text-primary-foreground shadow-earth">
             <Sprout className="h-5 w-5" />
@@ -103,7 +106,7 @@ const Auth = () => {
           <span className="font-display text-2xl font-semibold">ZeroHunger<span className="text-accent">.AI</span></span>
         </Link>
 
-        <div className="bg-card rounded-2xl shadow-soft border border-border/60 p-7">
+        <div className="bg-card/90 backdrop-blur rounded-2xl shadow-earth border border-border/60 p-7">
           <Tabs value={tab} onValueChange={setTab} className="w-full">
             <TabsList className="grid grid-cols-2 mb-6 w-full">
               <TabsTrigger value="login">Sign in</TabsTrigger>
