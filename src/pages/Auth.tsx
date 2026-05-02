@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
-import { Sprout, Loader2, Heart, HandHelping, Mail, KeyRound } from "lucide-react";
+import { Sprout, Loader2, Heart, HandHelping } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,13 +31,6 @@ const Auth = () => {
     (params.get("role") as "donor" | "receiver") || "receiver"
   );
   const [loading, setLoading] = useState(false);
-
-  // OTP / email-code login
-  const [otpEmail, setOtpEmail] = useState("");
-  const [otpStep, setOtpStep] = useState<"email" | "code">("email");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
 
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
@@ -101,48 +93,6 @@ const Auth = () => {
     navigate("/dashboard");
   };
 
-  const sendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const email = otpEmail.trim();
-    if (!z.string().email().safeParse(email).success) {
-      toast.error("Enter a valid email");
-      return;
-    }
-    setOtpSending(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` },
-    });
-    setOtpSending(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Code sent — check your inbox");
-    setOtpStep("code");
-  };
-
-  const verifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otpCode.length !== 6) {
-      toast.error("Enter the 6-digit code");
-      return;
-    }
-    setOtpVerifying(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: otpEmail.trim(),
-      token: otpCode,
-      type: "email",
-    });
-    setOtpVerifying(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Signed in!");
-    navigate("/dashboard");
-  };
-
   return (
     <div className="min-h-screen bg-gradient-cream flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -155,9 +105,8 @@ const Auth = () => {
 
         <div className="bg-card rounded-2xl shadow-soft border border-border/60 p-7">
           <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6 w-full">
-              <TabsTrigger value="login">Password</TabsTrigger>
-              <TabsTrigger value="otp">Email code</TabsTrigger>
+            <TabsList className="grid grid-cols-2 mb-6 w-full">
+              <TabsTrigger value="login">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Sign up</TabsTrigger>
             </TabsList>
 
@@ -176,60 +125,6 @@ const Auth = () => {
                   Sign in
                 </Button>
               </form>
-            </TabsContent>
-
-            <TabsContent value="otp">
-              {otpStep === "email" ? (
-                <form onSubmit={sendOtp} className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    We'll email you a 6-digit code. No password needed.
-                  </p>
-                  <div>
-                    <Label htmlFor="otp-email">Email</Label>
-                    <Input
-                      id="otp-email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      value={otpEmail}
-                      onChange={(e) => setOtpEmail(e.target.value)}
-                    />
-                  </div>
-                  <Button type="submit" disabled={otpSending} className="w-full bg-gradient-warm shadow-warm">
-                    {otpSending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
-                    Send code
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={verifyOtp} className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Enter the 6-digit code sent to <span className="text-foreground font-medium">{otpEmail}</span>
-                  </p>
-                  <div className="flex justify-center py-2">
-                    <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  <Button type="submit" disabled={otpVerifying || otpCode.length !== 6} className="w-full bg-gradient-warm shadow-warm">
-                    {otpVerifying ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <KeyRound className="h-4 w-4 mr-2" />}
-                    Verify & sign in
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => { setOtpStep("email"); setOtpCode(""); }}
-                    className="text-xs text-muted-foreground hover:text-foreground w-full text-center"
-                  >
-                    Use a different email
-                  </button>
-                </form>
-              )}
             </TabsContent>
 
             <TabsContent value="signup">
